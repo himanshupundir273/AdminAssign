@@ -12,7 +12,6 @@ const AdminPanel1 = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
 
-  // Fetch users
   const fetchUsers = async (page = 1, keyword = "") => {
     setIsLoading(true);
     try {
@@ -98,7 +97,6 @@ const AdminPanel1 = () => {
     fetchUsers(1, searchKeyword);
   };
   const handleViewProfile = (userId) => {
-    // Implement view profile functionality
     console.log("Viewing profile for user:", userId);
     setActiveDropdown(null);
   };
@@ -234,7 +232,6 @@ const AdminPanel1 = () => {
                         <MoreVertical className="w-5 h-5" />
                       </button>
                       
-                      {/* Dropdown Menu */}
                       {activeDropdown === user._id && (
                         <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border border-gray-200">
                           <div className="py-1">

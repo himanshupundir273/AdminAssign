@@ -52,7 +52,6 @@ const LoginPage = () => {
       const response = await handleLogin(formData);
       
       if (response.accessToken) {
-        // Store token and user data
         localStorage.setItem('token', response.accessToken);
         localStorage.setItem('userData', JSON.stringify(response.data));
         
@@ -93,7 +92,6 @@ const LoginPage = () => {
         theme="colored"
       />
 
-      {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
@@ -102,9 +100,7 @@ const LoginPage = () => {
       />
 
       <div className="relative min-h-screen flex items-center justify-center">
-        {/* Main container */}
-        <div className="w-full max-w-5xl p-16 flex items-center justify-between rounded-lg shadow-xl bg-[#A5A5A5]/20 backdrop-blur-[10px]">
-          {/* Left side with logo */}
+      <div className="w-full max-w-5xl p-16 flex items-center justify-between rounded-lg shadow-xl bg-[#A5A5A5]/20 backdrop-blur-[10px]">
           <div className="w-1/2 flex justify-center items-center">
             <div className="relative">
               <div className="w-36 h-36 rounded-full bg-rose-100 flex items-center justify-center">
@@ -118,10 +114,8 @@ const LoginPage = () => {
             </div>
           </div>
 
-          {/* Vertical divider */}
           <div className="h-110 w-px bg-[#E25845]"></div>
 
-          {/* Right side with login form */}
           <div className="w-1/2 p-8 font-poppins">
             <div className="bg-white rounded-lg p-6 shadow-sm">
               <h2 className="text-2xl mb-1 font-[700]">Log in</h2>

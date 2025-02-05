@@ -25,7 +25,6 @@ const ProfileUploadPage = () => {
   };
 
   const handleImageChange = (e) => {
-    // Handle image upload here if needed
     const file = e.target.files[0];
     if (file) {
       setFormData(prevState => ({
@@ -111,7 +110,6 @@ const ProfileUploadPage = () => {
         theme="colored"
       />
 
-      {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{

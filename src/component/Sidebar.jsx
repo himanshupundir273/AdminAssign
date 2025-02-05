@@ -24,7 +24,6 @@ const Sidebar = () => {
 
   return (
     <div className="relative">
-      {/* Background curve */}
       <div 
         className="absolute top-0 right-0 w-32 h-32 bg-[#FF8553] rounded-bl-full"
         style={{
@@ -32,7 +31,6 @@ const Sidebar = () => {
         }}
       />
 
-      {/* Sidebar content */}
       <div className="w-64 min-h-screen bg-white shadow-lg relative z-10">
         <div className="p-6">
           {menuItems.map((item) => (

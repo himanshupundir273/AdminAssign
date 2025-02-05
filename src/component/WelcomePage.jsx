@@ -6,13 +6,11 @@ const WelcomePage = () => {
   const navigate = useNavigate();
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Add your login logic here
     navigate('/profile');
   };
 
   return (
     <div className="min-h-screen relative">
-      {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
@@ -21,10 +19,8 @@ const WelcomePage = () => {
       />
 
       <div className="relative min-h-screen flex items-center justify-center ">
-        {/* Main container */}
         <div className="w-full max-w-5xl p-14 flex items-center justify-center rounded-lg shadow-xl bg-[#A5A5A5]/20 backdrop-blur-[10px]">
           <div className="w-full max-w-xl p-18 rounded-lg bg-white shadow-lg">
-            {/* Logo */}
             <div className="flex justify-center mb-8">
               <div className="w-24 h-24">
                 <img
@@ -35,7 +31,6 @@ const WelcomePage = () => {
               </div>
             </div>
 
-            {/* Welcome Text */}
             <div className="text-center font-poppins">
               <h1 className="text-3xl font-[700] font-poppins  text-gray-900">Welcome</h1>
               <h2 className="text-xl  font-[700] font-poppins text-[#FF8553]">
@@ -43,7 +38,6 @@ const WelcomePage = () => {
               </h2>
             </div>
 
-            {/* Description */}
             <div className="mt-6 text-center">
               <p className="text-[#7F7F7F] text-sm ">
                 Manage and monitor all aspects of your app seamlessly from one
@@ -51,7 +45,6 @@ const WelcomePage = () => {
               </p>
             </div>
 
-            {/* Get Started Button */}
             <div className="mt-8 flex justify-center">
               <button
                 type="button"

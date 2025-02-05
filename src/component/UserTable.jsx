@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Bell, MoreVertical, Search } from "lucide-react";
 
-// Action Menu Component
 const ActionMenu = ({ isOpen, onClose, onViewProfile, onDeleteUser }) => {
   if (!isOpen) return null;
 
@@ -39,7 +38,6 @@ const StarRating = ({ rating }) => {
   );
 };
 
-// User Table Component
 const UserTable = ({
   users,
   onBlockToggle,
@@ -64,7 +62,6 @@ const UserTable = ({
     ));
   };
 
-  // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -82,7 +79,7 @@ const UserTable = ({
   };
 
   const handleDeleteUser = (userId) => {
-    onDeleteUser(userId); // Call the prop function directly
+    onDeleteUser(userId);
     setActiveMenu(null);
   };
 

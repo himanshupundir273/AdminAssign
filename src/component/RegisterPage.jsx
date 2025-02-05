@@ -8,8 +8,8 @@ import 'react-toastify/dist/ReactToastify.css';
 const RegisterPage = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Add form state
   const [formData, setFormData] = useState({
     fullName: '',
     firstName: '',
@@ -19,7 +19,6 @@ const RegisterPage = () => {
     password: '',
   });
 
-  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
@@ -40,9 +39,7 @@ const RegisterPage = () => {
       });
   
       const data = await response.json();
-      console.log("data is present here",data)
       
-      // Check if response is not ok (status code outside 200-299)
       if (!response.ok) {
         if (response.status === 409) {
           throw new Error("User already exists with this email or phone number");
@@ -57,12 +54,26 @@ const RegisterPage = () => {
     }
   };
   
-  // Form submission with better error handling
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+
+    // Basic validation
+    if (formData.password.length < 6) {
+      toast.error("Password must be at least 6 characters long");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!formData.email.includes('@')) {
+      toast.error("Please enter a valid email address");
+      setIsSubmitting(false);
+      return;
+    }
+
+    const loadingToast = toast.loading("Creating your account...");
+
     try {
-      console.log("Submitting form...");
-  
       const response = await handleRegister({
         fullName: formData.fullName,
         firstName: formData.firstName,
@@ -72,21 +83,45 @@ const RegisterPage = () => {
         password: formData.password,
       });
   
-      console.log("API Response:", response);
-  
-      if (response) {
-        // Success case - navigate immediately
-        navigate('/', { replace: true }); // Added replace: true to prevent going back
-      }
+      toast.update(loadingToast, {
+        render: "Account created successfully!",
+        type: "success",
+        isLoading: false,
+        autoClose: 2000
+      });
+
+      // Wait for toast to be visible before navigating
+      setTimeout(() => {
+        navigate('/', { replace: true }); 
+      }, 2000);
+
     } catch (error) {
-      console.error("Registration failed:", error);
-      alert(error.message || "Registration failed. Please try again.");
+      toast.update(loadingToast, {
+        render: error.message || "Registration failed. Please try again.",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <div className="min-h-screen relative">
-      {/* Background Image */}
+      <ToastContainer 
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+      
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
@@ -95,7 +130,6 @@ const RegisterPage = () => {
       />
 
       <div className="relative min-h-screen flex items-center justify-center">
-        {/* Main container */}
         <div className="w-full max-w-5xl p-4 flex items-center justify-between rounded-lg shadow-xl bg-[#A5A5A5]/20 backdrop-blur-[10px]">
           {/* Left side with logo */}
           <div className="w-1/2 flex justify-center items-center">
@@ -108,10 +142,9 @@ const RegisterPage = () => {
             </div>
           </div>
 
-          {/* Vertical divider */}
           <div className="h-96 w-px bg-[#E25845]"></div>
 
-          {/* Right side with registration form */}
+          {/* Right side with form */}
           <div className="w-1/2 p-6 font-poppins">
             <div className="bg-white rounded-lg p-8 shadow-sm">
               <h2 className="text-2xl font-bold mb-1">Create New Account</h2>
@@ -203,14 +236,15 @@ const RegisterPage = () => {
                   </button>
                 </div>
 
-                
-
                 <div className="flex flex-col items-center gap-3 mt-6">
                   <button
                     type="submit"
-                    className="w-40 bg-[#199FB1] text-white py-2.5 px-4 rounded-md hover:bg-[#178a99] transition-colors text-sm font-medium"
+                    disabled={isSubmitting}
+                    className={`w-40 bg-[#199FB1] text-white py-2.5 px-4 rounded-md hover:bg-[#178a99] transition-colors text-sm font-medium ${
+                      isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
+                    }`}
                   >
-                    Create Account
+                    {isSubmitting ? 'Creating...' : 'Create Account'}
                   </button>
 
                   <a
