@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../component/Sidebar";
-import UserTable from "../component/UserTable";
 import { Bell, MoreVertical, Search } from "lucide-react";
-import profile from "../assets/profile.svg";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -12,6 +10,7 @@ const AdminPanel1 = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null);
 
   // Fetch users
   const fetchUsers = async (page = 1, keyword = "") => {
@@ -39,123 +38,234 @@ const AdminPanel1 = () => {
     }
   };
 
-// Modified handleBlockToggle and handleDeleteUser functions
-const handleBlockToggle = async (userId) => {
-  try {
-    const token = localStorage.getItem('token'); // Get auth token
-    const response = await fetch(
-      `https://mamun-reza-freeshops-backend.vercel.app/api/v1/admin/userActiveBlock/${userId}`,
-      {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+  const handleBlockToggle = async (userId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(
+        `https://mamun-reza-freeshops-backend.vercel.app/api/v1/admin/userActiveBlock/${userId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
         }
+      );
+
+      const data = await response.json();
+      if (response.ok) {
+        toast.success(data.message || "User status updated successfully");
+        fetchUsers(currentPage, searchKeyword);
+      } else {
+        toast.error(data.message || "Failed to update user status");
       }
-    );
-
-    const data = await response.json();
-    if (response.ok) {
-      toast.success(data.message || "User status updated successfully");
-      fetchUsers(currentPage, searchKeyword);
-    } else {
-      toast.error(data.message || "Failed to update user status");
+    } catch (error) {
+      toast.error("Error updating user status");
     }
-  } catch (error) {
-    console.error("Error toggling user status:", error);
-    toast.error("Error updating user status");
-  }
-};
+  };
 
-const handleDeleteUser = async (userId) => {
-  try {
-    console.log('Attempting to delete user:', userId);
-    const token = localStorage.getItem('token');
-    console.log('Token:', token ? 'Present' : 'Missing');
-    
-    const response = await fetch(`https://mamun-reza-freeshops-backend.vercel.app/api/v1/admin/deleteUser/${userId}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+  const handleDeleteUser = async (userId) => {
+    if (window.confirm("Are you sure you want to delete this user?")) {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(
+          `https://mamun-reza-freeshops-backend.vercel.app/api/v1/admin/deleteUser/${userId}`,
+          {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        if (response.ok) {
+          toast.success("User deleted successfully");
+          fetchUsers(currentPage, searchKeyword);
+        } else {
+          toast.error("Failed to delete user");
+        }
+      } catch (error) {
+        toast.error("Error deleting user");
       }
-    });
-    
-    console.log('Response status:', response.status);
-    const data = await response.json();
-    console.log('Response data:', data);
-
-    if (response.ok) {
-      toast.success("User deleted successfully");
-      fetchUsers(currentPage, searchKeyword);
-    } else {
-      toast.error(data.message || "Failed to delete user");
     }
-  } catch (error) {
-    console.error("Delete error details:", error);
-    toast.error("Error deleting user");
-  }
-}
+    setActiveDropdown(null);
+  };
 
-  // Handle search
   const handleSearch = (e) => {
     e.preventDefault();
     setCurrentPage(1);
     fetchUsers(1, searchKeyword);
   };
+  const handleViewProfile = (userId) => {
+    // Implement view profile functionality
+    console.log("Viewing profile for user:", userId);
+    setActiveDropdown(null);
+  };
 
-  // Initial fetch
   useEffect(() => {
     fetchUsers(currentPage);
   }, [currentPage]);
 
-  return (
-    <div className="relative min-h-screen">
-      <ToastContainer />
-      {/* Rest of your existing background elements */}
-      
-      <div className="relative flex min-h-screen z-10">
-        <Sidebar activeItem={activeItem} setActiveItem={setActiveItem} />
+  const renderPagination = () => {
+    return (
+      <div className="flex items-center justify-end mt-4 gap-2">
+        <span className="text-sm text-gray-600">Displaying page</span>
+        <button className="px-3 py-1 bg-gray-200 rounded">First</button>
+        {[1, 2, 3, 4, 5, 6].map((page) => (
+          <button
+            key={page}
+            className={`px-3 py-1 rounded ${
+              currentPage === page ? 'bg-blue-500 text-white' : 'bg-gray-200'
+            }`}
+            onClick={() => setCurrentPage(page)}
+          >
+            {page}
+          </button>
+        ))}
+        <button className="px-3 py-1 bg-gray-200 rounded">Last</button>
+      </div>
+    );
+  };
 
-        <div className="flex-1">
-          <header className="p-4 flex justify-between items-center">
-            <div className="flex w-80">
-              <form onSubmit={handleSearch} className="relative w-full">
+  return (
+    <div className="flex min-h-screen bg-gradient-to-b from-orange-400 to-white">
+      <ToastContainer />
+      
+      <Sidebar activeItem={activeItem} setActiveItem={setActiveItem} />
+
+      <div className="flex-1 p-8">
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-xl font-semibold">List of users</h1>
+            <div className="flex items-center gap-4">
+              <form onSubmit={handleSearch} className="relative">
                 <input
                   type="search"
                   value={searchKeyword}
                   onChange={(e) => setSearchKeyword(e.target.value)}
-                  placeholder="Search users..."
-                  className="block p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-200 focus:ring-[#199FB1] focus:border-[#199FB1]"
+                  placeholder="Search user by their name"
+                  className="w-96 px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 <button
                   type="submit"
-                  className="absolute top-0 end-0 p-2.5 h-full text-white bg-[#199FB1] rounded-e-lg hover:bg-[#178a99] transition-colors"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-teal-500 text-white px-4 py-1 rounded"
                 >
-                  <svg className="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                  </svg>
+                  Search
                 </button>
               </form>
             </div>
-            {/* Rest of your header content */}
-          </header>
+          </div>
 
-          <main className="p-0">
-            <div className="rounded-lg">
-              <div className="p-6">
-                <h1 className="text-xl mb-6 text-white">List of users</h1>
-                <UserTable 
-                  users={users}
-                  onBlockToggle={handleBlockToggle}
-                  onDeleteUser={handleDeleteUser}
-                  currentPage={currentPage}
-                  setCurrentPage={setCurrentPage}
-                  isLoading={isLoading}
-                />
-              </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="px-4 py-2 text-left">
+                    <input type="checkbox" className="rounded" />
+                  </th>
+                  <th className="px-4 py-2 text-left">Name</th>
+                  <th className="px-4 py-2 text-left">User Deal</th>
+                  <th className="px-4 py-2 text-left">Block/Unblock</th>
+                  <th className="px-4 py-2 text-left">Ratings</th>
+                  <th className="px-4 py-2 text-left">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user._id} className="border-b hover:bg-gray-50">
+                    <td className="px-4 py-3">
+                      <input type="checkbox" className="rounded" />
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={user.image || '/default-avatar.png'}
+                          alt=""
+                          className="w-8 h-8 rounded-full"
+                        />
+                        <div>
+                          <div className="font-medium">{user.fullName
+                          }</div>
+                          <div className="text-sm text-gray-500">{user.email}</div>
+                          <div className="text-sm text-gray-500">{user.phone}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div>
+                        <div className="text-red-500">{user.soldItems || 0} Sold</div>
+                        <div className="text-green-500">{user.boughtItems || 0} Bought</div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={() => handleBlockToggle(user._id)}
+                        className={`px-4 py-1 rounded ${
+                          user.isBlocked
+                            ? 'bg-red-500 text-white'
+                            : 'bg-red-100 text-red-500'
+                        }`}
+                      >
+                        {user.isBlocked ? 'Unblock' : 'Block'}
+                      </button>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <span
+                            key={star}
+                            className={`text-xl ${
+                              star <= (user.ratings || 0)
+                                ? 'text-yellow-400'
+                                : 'text-gray-300'
+                            }`}
+                          >
+                            ★
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 relative">
+                      <button
+                        onClick={() => setActiveDropdown(activeDropdown === user._id ? null : user._id)}
+                        className="text-gray-500 hover:text-gray-700"
+                      >
+                        <MoreVertical className="w-5 h-5" />
+                      </button>
+                      
+                      {/* Dropdown Menu */}
+                      {activeDropdown === user._id && (
+                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border border-gray-200">
+                          <div className="py-1">
+                            <button
+                              onClick={() => handleViewProfile(user._id)}
+                              className="block w-full text-left px-4 py-2 text-sm text-teal-600 hover:bg-gray-100"
+                            >
+                              View Profile
+                            </button>
+                            <button
+                              onClick={() => handleDeleteUser(user._id)}
+                              className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                            >
+                              Delete User
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-4">
+            <div className="text-sm text-gray-500">
+              Showing {users.length} of 50 total users
             </div>
-          </main>
+            {renderPagination()}
+          </div>
         </div>
       </div>
     </div>

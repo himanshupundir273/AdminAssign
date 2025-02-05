@@ -40,6 +40,7 @@ const RegisterPage = () => {
       });
   
       const data = await response.json();
+      console.log("data is present here",data)
       
       // Check if response is not ok (status code outside 200-299)
       if (!response.ok) {
